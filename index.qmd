@@ -1,0 +1,145 @@
+---
+title: "Social Support and Happiness"
+author: "Thomas Seoh"
+format: html
+execute:
+  echo: FALSE
+  message: FALSE
+  warning: FALSE
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(primer.data)
+library(gtsummary)
+library(brms)
+library(tidybayes)
+library(gt)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(rworldmap)
+library(sf)
+
+# Load the dataset
+df <- read_csv("data/world-happiness-report-updated_2024.csv")
+
+# Manually correcting some country names
+country_mapping <- data.frame(
+  map_country = c(
+    "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", 
+    "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", 
+    "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", 
+    "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", 
+    "Botswana", "Brazil", "Bulgaria", "Burkina Faso", "Burundi", 
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", 
+    "Central African Republic", "Chad", "Chile", "China", "Colombia", 
+    "Comoros", "Congo", "Democratic Republic of the Congo", "Costa Rica", 
+    "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", 
+    "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Estonia", 
+    "Eswatini", "Ethiopia", "Finland", "France", "Gabon", "Gambia", 
+    "Georgia", "Germany", "Ghana", "Greece", "Guatemala", "Guinea", 
+    "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", 
+    "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", 
+    "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", 
+    "Jordan", "Kazakhstan", "Kenya", "Kosovo", "Kuwait", 
+    "Kyrgyzstan", "Laos", "Latvia", "Lebanon", 
+    "Lesotho", "Liberia", "Libya", "Lithuania", "Luxembourg", 
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", 
+    "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", 
+    "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", 
+    "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", 
+    "Niger", "Nigeria", "North Macedonia", "Norway", 
+    "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", 
+    "Peru", "Philippines", "Poland", "Portugal", "Qatar", 
+    "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", 
+    "Serbia", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", 
+    "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", 
+    "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", 
+    "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", 
+    "Timor-Leste", "Togo", "Trinidad and Tobago", "Tunisia", 
+    "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", 
+    "United Kingdom", "United States", "Uruguay", "Uzbekistan", 
+    "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", 
+    "Zimbabwe"
+  ),
+  happiness_country = c(
+    "Afghanistan", "Albania", "Algeria", "Angola", "Argentina", 
+    "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", 
+    "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", 
+    "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", 
+    "Botswana", "Brazil", "Bulgaria", "Burkina Faso", "Burundi", 
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", 
+    "Central African Republic", "Chad", "Chile", "China", "Colombia", 
+    "Comoros", "Congo (Brazzaville)", "Congo (Kinshasa)", "Costa Rica", 
+    "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", 
+    "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Estonia", 
+    "Eswatini", "Ethiopia", "Finland", "France", "Gabon", "Gambia", 
+    "Georgia", "Germany", "Ghana", "Greece", "Guatemala", "Guinea", 
+    "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", 
+    "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", 
+    "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", 
+    "Jordan", "Kazakhstan", "Kenya", "Kosovo", "Kuwait", 
+    "Kyrgyzstan", "Laos", "Latvia", "Lebanon", 
+    "Lesotho", "Liberia", "Libya", "Lithuania", "Luxembourg", 
+    "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", 
+    "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", 
+    "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", 
+    "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", 
+    "Niger", "Nigeria", "North Macedonia", "Norway", 
+    "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", 
+    "Peru", "Philippines", "Poland", "Portugal", "Qatar", 
+    "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", 
+    "Serbia", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", 
+    "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", 
+    "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", 
+    "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", 
+    "Timor-Leste", "Togo", "Trinidad and Tobago", "Tunisia", 
+    "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", 
+    "United Kingdom", "United States", "Uruguay", "Uzbekistan", 
+    "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", 
+    "Zimbabwe"
+  )
+)
+
+# Map the countries to the corrected names
+df <- df %>%
+  mutate(Country = recode(`Country name`, !!!setNames(country_mapping$happiness_country, country_mapping$map_country)))
+
+# Ensure that each country is unique in the dataset
+df_unique <- df %>%
+  group_by(Country) %>%
+  summarise(across(everything(), mean, na.rm = TRUE)) %>%
+  ungroup()
+
+# Load the map data
+world_map <- getMap(resolution = "low")
+
+# Merge the happiness data with the map data, retaining geometry
+df_map <- merge(world_map, df_unique, by.x = "NAME", by.y = "Country", all.x = TRUE)
+
+# Convert to sf object for ggplot
+df_map_sf <- st_as_sf(df_map)
+
+# Plot the map for social support
+ggplot(df_map_sf) +
+  geom_sf(aes(fill = `Social support`)) +
+  scale_fill_viridis_c(option = "plasma") +
+  labs(title = "Social Support by Country",
+       fill = "Social Support") +
+  theme_minimal()
+
+```
+
+
+
