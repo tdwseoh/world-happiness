@@ -1,0 +1,100 @@
+---
+title: "Graphs"
+author: "Thomas Seoh"
+format: html
+execute:
+  echo: FALSE
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(primer.data)
+library(gtsummary)
+library(brms)
+library(tidybayes)
+library(gt)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(rworldmap)
+library(sf)
+library(RColorBrewer)
+```
+
+```{r}
+#| label: graph 1
+#| message: false
+#| warning: false
+
+df <- read_csv("data/world-happiness-report-updated-with-regions.csv")
+
+ggplot(df, aes(x = `Social support`, y = `Life Ladder`)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  scale_y_continuous(limits=c(0, 10)) + 
+  scale_x_continuous(limits=c(0, 1)) +
+  labs(title = "Happiness and Social Support",
+       subtitle = "Happiness Score and Social Support by Country, 2024",
+       x = "Social Support (0-1)",
+       y = "Happiness Score (0-10)", 
+       caption = "Data: WHR, 2024.") +
+   theme(plot.title = element_text(face = "bold", size = 20, margin = margin(b=5)), 
+        plot.subtitle = element_text(face = "italic", size = 15, margin = margin(b = 10)), 
+        plot.caption = element_text(face = "italic", margin = margin(t = 5)), 
+        axis.title.y = element_text(face = "bold"), 
+        axis.title.x = element_text(face = "bold"),
+        axis.text = element_text(face = "bold"))
+```
+
+```{r}
+#| label: graph 2
+#| message: false
+#| warning: false
+
+df <- read_csv("data/world-happiness-report-updated-with-regions.csv")
+
+ggplot(df, aes(x = `Healthy life expectancy at birth`, y = `Life Ladder`)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  scale_y_continuous(limits=c(0, 10)) + 
+  labs(title = "Happiness and Health",
+       subtitle = "Happiness Score and Life Expectancy by Country, 2024",
+       x = "Life Expectancy (Years)",
+       y = "Happiness Score (0-10)", 
+       caption = "Data: WHR, 2024.") +
+   theme(plot.title = element_text(face = "bold", size = 20, margin = margin(b=5)), 
+        plot.subtitle = element_text(face = "italic", size = 15, margin = margin(b = 10)), 
+        plot.caption = element_text(face = "italic", margin = margin(t = 5)), 
+        axis.title.y = element_text(face = "bold"), 
+        axis.title.x = element_text(face = "bold"),
+        axis.text = element_text(face = "bold"))
+```
+
+```{r}
+#| label: graph 3
+#| message: false
+#| warning: false
+
+df <- read_csv("data/world-happiness-report-updated-with-regions.csv")
+
+ggplot(df, aes(x = `Freedom to make life choices`, y = `Life Ladder`)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  scale_y_continuous(limits=c(0, 10)) + 
+  labs(title = "Happiness and Freedom",
+       subtitle = "Happiness Score and Freedom to Make Life Choices by Country, 2024",
+       x = "Freedom Scale (0-1)",
+       y = "Happiness Score (0-10)", 
+       caption = "Data: WHR, 2024.") +
+   theme(plot.title = element_text(face = "bold", size = 20, margin = margin(b=5)), 
+        plot.subtitle = element_text(face = "italic", size = 15, margin = margin(b = 10)), 
+        plot.caption = element_text(face = "italic", margin = margin(t = 5)), 
+        axis.title.y = element_text(face = "bold"), 
+        axis.title.x = element_text(face = "bold"),
+        axis.text = element_text(face = "bold"))
+```
+

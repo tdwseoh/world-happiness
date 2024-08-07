@@ -1,0 +1,106 @@
+---
+title: "Model"
+author: "Thomas Seoh"
+format: html
+execute:
+  echo: FALSE
+  message: FALSE
+  warning: FALSE
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(tidyverse)
+library(primer.data)
+library(brms)
+library(tidybayes)
+library(gtsummary)
+
+df <- read_csv("data/world-happiness-report-updated_2024.csv")
+```
+
+$$
+\text{happiness} = \beta_{0} + \beta_{1} \cdot \text{social_support} + \beta_{2} \cdot \text{income} + \beta_{3} \cdot \text{health} + \beta_{4} \cdot \text{freedom} + \beta_{5} \cdot \text{generosity} + \beta_{6} \cdot \text{perceptions\_of\_corruption}
+$$
+
+```{r}
+# Filter and rename columns as needed
+happiness_data_filtered <- df |> 
+  rename(
+    social_support = "Social support",
+    income = "Log GDP per capita",
+    health = "Healthy life expectancy at birth",
+    freedom = "Freedom to make life choices",
+    generosity = "Generosity",
+    perceptions_of_corruption = "Perceptions of corruption",
+    happiness = "Life Ladder"
+  ) |> 
+  select(happiness, social_support, income, health, freedom, generosity, perceptions_of_corruption) |> 
+  filter(
+    !is.na(social_support), 
+    !is.na(income), 
+    !is.na(health), 
+    !is.na(freedom), 
+    !is.na(generosity), 
+    !is.na(perceptions_of_corruption), 
+    !is.na(happiness)
+  )
+```
+
+```{r}
+#| label: general analysis
+#| cache: true
+
+fit <- brm(
+  formula = happiness ~ social_support + income + health + freedom + generosity + perceptions_of_corruption,
+  data = happiness_data_filtered,
+  family = gaussian(),
+  refresh = 0,
+  silent = 2,
+  seed = 123
+)
+
+tbl_regression(fit)
+```
+
+```{r}
+df1 <- read_csv("data/world-happiness-report-updated_2024.csv") |>
+  rename(
+    social_support = "Social support",
+    income = "Log GDP per capita",
+    health = "Healthy life expectancy at birth",
+    freedom = "Freedom to make life choices",
+    generosity = "Generosity",
+    perceptions_of_corruption = "Perceptions of corruption",
+    happiness = "Life Ladder"
+  ) |>
+  select(happiness, social_support, income, health, freedom, generosity, perceptions_of_corruption) |>
+  filter(
+    !is.na(social_support), 
+    !is.na(income), 
+    !is.na(health), 
+    !is.na(freedom), 
+    !is.na(generosity), 
+    !is.na(perceptions_of_corruption), 
+    !is.na(happiness)
+  )
+```
+
+```{r}
+#| label: detailed analysis
+#| cache: true
+
+fit_all <- brm(
+  formula = happiness ~ social_support + income + health + freedom + generosity + perceptions_of_corruption,
+  data = df1,
+  family = gaussian(),
+  refresh = 0,
+  silent = 2,
+  seed = 123
+)
+
+fit_all
+```
+

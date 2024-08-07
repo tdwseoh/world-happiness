@@ -1,0 +1,11 @@
+---
+title: "About"
+author: "Thomas Seoh"
+format: html
+---
+
+My name is Thomas Seoh, and I am becoming a student at [Iroquois Ridge High School](https://irs.hdsb.ca/) in this September. Here is my [Github account](https://github.com/tdwseoh) where all my other projects are listed, and here is my [email](https://mail.google.com/mail/u/0/?fs=1&to=tommyseoh@gmail.com&tf=cm) where you are free to contact me.
+
+This project explores the various factors that defines happiness levels. The participants were asked to measure their level of happiness on a scale from 1-10, 1 being the lowest, and 10 being the highest. Here is the [Github repository](https://github.com/tdwseoh/world-happiness).
+
+This project was created as a part of [Kane’s Data Science Bootcamp](https://bootcamp.davidkane.info/).

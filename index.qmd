@@ -1,5 +1,6 @@
 ---
-title: "Social Support and Happiness"
+title: "What Defines Happiness?"
+subtitle: "What is it, really?"
 author: "Thomas Seoh"
 format: html
 execute:
@@ -21,15 +22,15 @@ library(gt)
 library(tidyr)
 library(ggplot2)
 library(dplyr)
-```
-
-```{r}
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
 library(readr)
 library(rworldmap)
 library(sf)
+library(RColorBrewer)
+```
+
+Money, freedom, social support, and many more factors have a substantial impact on our lives, and in particular, related to our quality of life, highlighting happiness. In a yearly study that collects data from sample populations from around the world, we seek to evaluate if there is a relationship between various factors of life and whether or not they increase or decrease happiness in 2024. The goal is to assist government policy-makers in recommending different types of sectors for the government to improve, which is more beneficial than others. We modeled happiness, and it is on a scale of 1-10 (1 being the respondent does not experience it, 10 being the respondent experiences it often). The outcome variable in this study is the happiness score, and we used a Bayesian Linear Regression Model to analyze it. The model includes several key predictors, such as variables of income, health, freedom, social support, and more. The factor that defines and correlates most with happiness, is social support, as the happiness level increases by 2.6 units, when social support increases by 1 unit.
+
+```{r}
 
 # Load the dataset
 df <- read_csv("data/world-happiness-report-updated_2024.csv")
@@ -123,7 +124,7 @@ df_unique <- df %>%
   ungroup()
 
 # Load the map data
-world_map <- getMap(resolution = "low")
+world_map <- getMap(resolution = "high")
 
 # Merge the happiness data with the map data, retaining geometry
 df_map <- merge(world_map, df_unique, by.x = "NAME", by.y = "Country", all.x = TRUE)
@@ -131,14 +132,18 @@ df_map <- merge(world_map, df_unique, by.x = "NAME", by.y = "Country", all.x = T
 # Convert to sf object for ggplot
 df_map_sf <- st_as_sf(df_map)
 
-# Plot the map for social support
+# Plot the map for happiness score
 ggplot(df_map_sf) +
-  geom_sf(aes(fill = `Social support`)) +
-  scale_fill_viridis_c(option = "plasma") +
-  labs(title = "Social Support by Country",
-       fill = "Social Support") +
-  theme_minimal()
-
+  geom_sf(aes(fill = `Life Ladder`)) +
+  scale_fill_gradientn(colors = c("lightyellow", "yellow", "red")) +
+  labs(title = "Happiness Score by Country",
+       subtitle = "Scale from 0-10",
+       caption = "Gray = N/A",
+       fill = "Happiness Score") +
+  theme(plot.title = element_text(face = "bold", size = 20, margin = margin(b=5)), 
+        plot.subtitle = element_text(face = "italic", size = 15, margin = margin(b = 10)), 
+        plot.caption = element_text(face = "italic", margin = margin(t = 5)),
+        axis.text = element_text(face = "bold"))
 ```
 
 
