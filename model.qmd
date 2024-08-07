@@ -1,5 +1,6 @@
 ---
 title: "Model"
+subtitle: "What is the most correlated variable to listen to to increase happiness levels?"
 author: "Thomas Seoh"
 format: html
 execute:
@@ -20,6 +21,8 @@ library(gtsummary)
 
 df <- read_csv("data/world-happiness-report-updated_2024.csv")
 ```
+
+To answer the question of which factor correlates most with happiness, we have to see which of the variables are most associated with levels of happiness, by using a Bayesian Linear Regression Model. For this model, we are using this formula:
 
 $$
 \text{happiness} = \beta_{0} + \beta_{1} \cdot \text{social_support} + \beta_{2} \cdot \text{income} + \beta_{3} \cdot \text{health} + \beta_{4} \cdot \text{freedom} + \beta_{5} \cdot \text{generosity} + \beta_{6} \cdot \text{perceptions\_of\_corruption}
@@ -48,6 +51,8 @@ happiness_data_filtered <- df |>
     !is.na(happiness)
   )
 ```
+
+We see that on average, higher levels of social support generally have higher levels of happiness. Note that the Perceptions of Corruptions should be reversed, as it is a scale from lowest to highest (best to worst).
 
 ```{r}
 #| label: general analysis
